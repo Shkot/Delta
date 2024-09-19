@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <title>Тестовое задание "Delta"</title>    
+</head>
+<body>
+    <div class="container">
+        <div class="container-first">
+            <table>
+                <tr>
+                    <th style="text-align: center;">Показатель</td>
+                    <th>Текущий день</td>
+                    <th>Вчера</td>
+                    <th>Этот день недели</td>
+                </tr>
+                <tr>
+                    <td>Выручка, руб</td>
+                    <td>500 521</td>
+                    <td>
+                        <span class="yesterday">480 521</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>480 521</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Наличные</td>
+                    <td>300 000</td>
+                    <td>
+                        <span class="yesterday">300 000</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>300 000</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Безналичный расчет</td>
+                    <td>100 000</td>
+                    <td>
+                        <span class="yesterday">100 000</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>100 000</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Кредитные карты</td>
+                    <td>100 521</td>
+                    <td>
+                        <span class="yesterday">100 521</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>100 521</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Средний чек, руб</td>
+                    <td>1 300</td>
+                    <td>
+                        <span class="yesterday">900</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>900</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Средний гость, руб</td>
+                    <td>1 200</td>
+                    <td>
+                        <span class="yesterday">800</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>800</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Удаления из чека (после оплаты), руб</td>
+                    <td>1 000</td>
+                    <td>
+                        <span class="yesterday">1 100</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>900</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Удаления из чека (до оплаты), руб</td>
+                    <td>1 300</td>
+                    <td>
+                        <span class="yesterday">1 300</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>900</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Количество чеков</td>
+                    <td>34</td>
+                    <td>
+                        <span class="yesterday">36</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>34</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+                <tr>
+                    <td>Количество гостей</td>
+                    <td>34</td>
+                    <td>
+                        <span class="yesterday">36</span>
+                        <span class="percentage" style="color: green;"></span>
+                    </td>
+                    <td>32</td>
+                </tr>
+                <tr class="graph_row"><td colspan="4"><canvas class="chart" style="display: none;"></canvas></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+       // Скрываем все графики при загрузке страницы
+        document.querySelectorAll('.graph_row').forEach(graphRow => {
+        graphRow.style.display = 'none';
+        });
+
+        // Обработка графиков 
+        document.querySelectorAll('table tr:not(:first-child):not(.graph_row)').forEach(row => {
+        row.addEventListener('click', function() {
+            // Скрываем все графики
+            document.querySelectorAll('.graph_row').forEach(graphRow => {
+                graphRow.style.display = 'none'; // Скрываем все графики
+                const chart = graphRow.querySelector('.chart');
+                if (chart.chart) chart.chart.destroy(); // Удаляем старые графики
+            });
+
+            // Находим соответствующую строку для графика
+            const graphRow = row.nextElementSibling;
+            graphRow.style.display = 'table-row'; // Показываем строку графика
+            const canvas = graphRow.querySelector('.chart');
+            canvas.style.display = 'block';
+
+            // Получаем данные из текущей строки
+            const currentData = [
+                    parseFloat(row.cells[1].innerText.replace(/\s/g, '')),
+                    parseFloat(row.cells[2].innerText.split(' ').slice(0, -1).join('').replace(/\s/g, '')),
+                    parseFloat(row.cells[3].innerText.replace(/\s/g, ''))
+                ];
+
+                // Построение графика
+                const ctx = canvas.getContext('2d');
+                const chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Текущий день', 'Вчера', 'Этот день недели'],
+                        datasets: [{
+                            label: 'Данные',
+                            data: currentData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+
+                // Сохраняем график в элементе
+                canvas.chart = chart;
+            });
+        });
+        // Функция для вычисления процента изменения
+        function calculatePercentage(current, previous) {
+            if (isNaN(current) || isNaN(previous) || previous === 0) {
+                return NaN; // Возвращаем NaN, если данные некорректны
+            }
+            const difference = current - previous;
+            const percentage = (difference / previous) * 100;
+            return percentage.toFixed(0);
+        }
+
+        // Проходим по всем строкам таблицы, кроме первой (с заголовками) и строк с графиками
+        const rows = document.querySelectorAll('table tr:not(:first-child):not(.graph_row)');
+
+        rows.forEach(row => {
+            const currentCell = row.cells[1]; // Текущая выручка (вторая колонка)
+            const yesterdayCell = row.querySelector('.yesterday'); // Вчерашняя выручка
+
+            if (currentCell && yesterdayCell) {
+                // Извлекаем значения
+                const currentValue = parseFloat(currentCell.innerText.replace(/\s/g, '')); // Текущая выручка
+                const previousValue = parseFloat(yesterdayCell.innerText.replace(/\s/g, '')); // Вчерашняя выручка
+
+                // Рассчитываем процент
+                const percentageChange = calculatePercentage(currentValue, previousValue);
+
+                // Обновляем HTML для процента
+                const percentageElement = row.querySelector('.percentage');
+                const percentageCell = row.cells[2];
+                if (percentageElement) {
+                    if (!isNaN(percentageChange)) {
+                        percentageElement.innerText = (percentageChange >= 0 ? '' : '') + percentageChange + '%';
+                        // Меняем цвет в зависимости от того, положительный или отрицательный процент
+                        percentageElement.style.color = percentageChange >= 0 ? 'green' : 'red';
+                        if (percentageChange > 0) {
+                            percentageCell.style.backgroundColor = '#ecf7e7';
+                        } else if (percentageChange < 0) {
+                            percentageCell.style.backgroundColor = '#fee6e6';
+                        } else {
+                            percentageCell.style.backgroundColor = ''; }
+                    } else {
+                        percentageElement.innerText = 'N/A'; // Если данные некорректны
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
